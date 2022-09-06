@@ -1,7 +1,11 @@
+mod input;
+
 use bevy::{
     input::{keyboard::KeyCode, Input},
     prelude::*,
 };
+
+use input::{PlayerInput, ButtonState};
 
 #[derive(Component)]
 struct Player;
@@ -51,44 +55,29 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 
 }
 
-
-fn map_key(now: &Res<Input<KeyCode>>, key: KeyCode, handler: &mut bool) {
-    *handler = now.just_pressed(key);
-    // if now.just_pressed(key)  { *handler = true; }
-    // if now.just_released(key) { *handler = false; }
+/// player_keyboard_input is a system that maps keyboard key presses to the player's input state
+fn player_keyboard_input(now: Res<Input<KeyCode>>, mut input_state: ResMut<PlayerInput>) {
+    input_state.update(&now);
 }
 
-fn keyboard_input(now: Res<Input<KeyCode>>, mut input_state: ResMut<PlayerInput>) {
-    map_key(&now, KeyCode::W, &mut input_state.up);
-    map_key(&now, KeyCode::Up, &mut input_state.up);
-
-    map_key(&now, KeyCode::A, &mut input_state.left);
-    map_key(&now, KeyCode::Left, &mut input_state.left);
-
-    map_key(&now, KeyCode::S, &mut input_state.down);
-    map_key(&now, KeyCode::Down, &mut input_state.down);
-
-    map_key(&now, KeyCode::D, &mut input_state.right);
-    map_key(&now, KeyCode::Right, &mut input_state.right);
+fn debug_input(now: Res<Input<KeyCode>>, mut debug_state: ResMut<DebugView>) {
 }
 
 fn player_movement(
     mut query: Query<&mut Transform, With<Player>>,
-    input_state: Res<PlayerInput>
+    input_state: Res<PlayerInput>,
+    tile: Res<TileSize>,
 ) {
     let mut player_t = query.single_mut();
-    if input_state.up    { player_t.translation.y += 32.0; }
-    if input_state.down  { player_t.translation.y -= 32.0; }
-    if input_state.left  { player_t.translation.x -= 32.0; }
-    if input_state.right { player_t.translation.x += 32.0; }
+    if input_state.up.pressed    { player_t.translation.y += tile.height as f32; }
+    if input_state.down.pressed  { player_t.translation.y -= tile.height as f32; }
+    if input_state.left.pressed  { player_t.translation.x -= tile.width as f32; }
+    if input_state.right.pressed { player_t.translation.x += tile.width as f32; }
 }
 
 #[derive(Default, Debug)]
-struct PlayerInput {
-    up:    bool,
-    down:  bool,
-    left:  bool,
-    right: bool,
+struct DebugView {
+    enabled: bool,
 }
 
 fn main() {
@@ -96,9 +85,10 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .insert_resource(PlayerInput::default())
+        .insert_resource(DebugView::default())
         .insert_resource(TileSize{width: TILE_WIDTH, height: TILE_HEIGHT})
         .add_startup_system(setup)
-        .add_system(keyboard_input)
+        .add_system(player_keyboard_input)
         .add_system(player_movement)
         .add_system(bevy::window::close_on_esc)
         .run();
