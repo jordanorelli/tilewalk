@@ -1,0 +1,19 @@
+[package]
+name = "tilewalk"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy = "0.8.1"
+
+# apparently the dynamic linking doesn't work on Windows?
+# bevy = { version "0.8.1", features = ["dynamic"] }
+
+[profile.dev]
+opt-level = 1
+
+# enable optimizations for dependencies (bevy) but not for our own app code
+[profile.dev.package."*"]
+opt-level = 3
