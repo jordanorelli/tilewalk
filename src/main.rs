@@ -1,11 +1,13 @@
 mod input;
+mod debug_view;
 
 use bevy::{
     input::{keyboard::KeyCode, Input},
     prelude::*,
 };
 
-use input::{PlayerInput, ButtonState};
+use input::PlayerInput;
+use debug_view::DebugViewPlugin;
 
 #[derive(Component)]
 struct Player;
@@ -60,9 +62,6 @@ fn player_keyboard_input(now: Res<Input<KeyCode>>, mut input_state: ResMut<Playe
     input_state.update(&now);
 }
 
-fn debug_input(now: Res<Input<KeyCode>>, mut debug_state: ResMut<DebugView>) {
-}
-
 fn player_movement(
     mut query: Query<&mut Transform, With<Player>>,
     input_state: Res<PlayerInput>,
@@ -75,17 +74,18 @@ fn player_movement(
     if input_state.right.pressed { player_t.translation.x += tile.width as f32; }
 }
 
-#[derive(Default, Debug)]
-struct DebugView {
-    enabled: bool,
-}
-
 fn main() {
     App::new()
+        .insert_resource(bevy::log::LogSettings{
+            // set to TRACE|DEBUG|INFO|WARN|ERROR to change log verbosity.
+            // INFO is the default level.
+            level: bevy::log::Level::INFO,
+            ..default()
+        })
         .add_plugins(DefaultPlugins)
+        .add_plugin(DebugViewPlugin)
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .insert_resource(PlayerInput::default())
-        .insert_resource(DebugView::default())
         .insert_resource(TileSize{width: TILE_WIDTH, height: TILE_HEIGHT})
         .add_startup_system(setup)
         .add_system(player_keyboard_input)
