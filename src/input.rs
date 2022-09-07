@@ -1,7 +1,4 @@
-use bevy::{
-    input::{keyboard::KeyCode, Input},
-    prelude::*,
-};
+use bevy::input::{keyboard::KeyCode, Input};
 
 #[derive(Default, Debug)]
 pub struct PlayerInput {

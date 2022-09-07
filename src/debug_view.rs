@@ -31,12 +31,12 @@ fn init_view(mut commands: Commands, asset_server: Res<AssetServer>) {
     });
 
     root.with_children(|parent| {
-        let textStyle = TextStyle{
+        let text_style = TextStyle{
             font: asset_server.load("fonts/FiraSans-Bold.ttf"),
             font_size: 20.0,
             color: DEBUG_PINK,
         };
-        let textBundle = TextBundle::from_section("fart", textStyle)
+        let text_bundle = TextBundle::from_section("fart", text_style)
             .with_text_alignment(TextAlignment::TOP_RIGHT)
             .with_style(Style{
                 align_self: AlignSelf::FlexEnd,
@@ -48,7 +48,7 @@ fn init_view(mut commands: Commands, asset_server: Res<AssetServer>) {
                 },
                 ..default()
             });
-        parent.spawn_bundle(textBundle);
+        parent.spawn_bundle(text_bundle);
     });
 }
 
